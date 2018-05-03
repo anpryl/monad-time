@@ -7,11 +7,16 @@
 {-# LANGUAGE OverlappingInstances #-}
 #endif
 
-module Control.Monad.Time (MonadTime(..)) where
+module Control.Monad.Time (MonadTime(..), withConstantTime) where
 
-import           Control.Monad.Reader (ReaderT, ask)
+import           Control.Monad.Reader (ReaderT, ask, runReaderT)
 import           Control.Monad.Trans
 import           Data.Time
+
+withConstantTime :: MonadIO m => ReaderT UTCTime m b -> m b
+withConstantTime action = do
+    now <- liftIO $ currentTime
+    flip runReaderT now $ action
 
 -- | Class of monads which carry the notion of the current time.
 class Monad m => MonadTime m where
